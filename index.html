@@ -1,103 +1,321 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>H5P Lesson Library</title>
 
-<meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/h5p-standalone@3.8.0/dist/styles/h5p.css" />
+  <script src="https://cdn.jsdelivr.net/npm/h5p-standalone@3.8.0/dist/main.bundle.js" charset="UTF-8"></script>
 
-<title>What is Computational Thinking?</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-2: #eef3f8;
+      --text: #1c2733;
+      --muted: #5f6b7a;
+      --primary: #0b5cab;
+      --primary-dark: #08427b;
+      --border: #d9e2ec;
+      --shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+      --radius: 16px;
+    }
 
-<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/h5p-standalone@3.8.0/dist/styles/h5p.css">
+    * { box-sizing: border-box; }
 
-<script src="https://cdn.jsdelivr.net/npm/h5p-standalone@3.8.0/dist/main.bundle.js"></script>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
 
-<style>
+    header {
+      background: linear-gradient(135deg, #0b5cab, #073763);
+      color: white;
+      padding: 24px 20px;
+    }
 
-body{
-font-family:Arial,sans-serif;
-margin:0;
-background:#f5f5f5;
-}
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+    }
 
-header{
-background:#003366;
-color:white;
-padding:20px;
-text-align:center;
-}
+    header p {
+      margin: 0;
+      color: rgba(255,255,255,0.88);
+      max-width: 700px;
+      line-height: 1.5;
+    }
 
-#lessons{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-gap:15px;
-padding:20px;
-}
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+      padding: 24px;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
 
-.lesson{
-background:white;
-padding:20px;
-border-radius:10px;
-cursor:pointer;
-box-shadow:0 2px 6px rgba(0,0,0,.15);
-}
+    .sidebar,
+    .viewer-panel {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
 
-#viewer{
-padding:20px;
-}
+    .sidebar {
+      padding: 18px;
+      align-self: start;
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+    }
 
-</style>
+    .sidebar h2,
+    .viewer-head h2 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+    }
 
+    .sidebar p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .lesson-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .lesson-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .lesson-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      background: #f8fbff;
+    }
+
+    .lesson-card.active {
+      border-color: var(--primary);
+      background: #eef6ff;
+      box-shadow: inset 0 0 0 1px rgba(11, 92, 171, 0.08);
+    }
+
+    .lesson-card h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .lesson-card p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--primary-dark);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .viewer-panel {
+      overflow: hidden;
+      min-height: 70vh;
+    }
+
+    .viewer-head {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border);
+      background: #fbfdff;
+    }
+
+    .viewer-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .viewer {
+      padding: 20px;
+      min-height: 500px;
+      background: white;
+    }
+
+    .empty-state,
+    .error-state,
+    .loading-state {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--muted);
+      background: #fafcff;
+    }
+
+    .empty-state strong,
+    .error-state strong,
+    .loading-state strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    @media (max-width: 960px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        max-height: none;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <header>
+    <h1>H5P Lesson Library</h1>
+    <p>Select a lesson from the library to load its interactive activity inside the viewer.</p>
+  </header>
 
-<header>
-<h1>Computational Thinking</h1>
-</header>
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Lessons</h2>
+      <p>These lessons are loaded from <code>lessons.json</code>. Each item points to a lesson folder such as <code>lesson1</code> or <code>lesson2</code>.</p>
+      <div id="lessonList" class="lesson-list"></div>
+    </aside>
 
-<div id="lessons"></div>
+    <section class="viewer-panel">
+      <div class="viewer-head">
+        <h2 id="viewerTitle">Choose a lesson</h2>
+        <p id="viewerDescription">The selected H5P activity will open here.</p>
+      </div>
+      <div id="viewer" class="viewer">
+        <div class="empty-state">
+          <strong>No lesson selected</strong>
+          Pick a lesson from the left to load the activity.
+        </div>
+      </div>
+    </section>
+  </main>
 
-<div id="viewer"></div>
+  <script>
+    const lessonList = document.getElementById('lessonList');
+    const viewer = document.getElementById('viewer');
+    const viewerTitle = document.getElementById('viewerTitle');
+    const viewerDescription = document.getElementById('viewerDescription');
+    let activeCard = null;
 
-<script>
+    function setViewerState(type, title, message) {
+      viewer.innerHTML = `
+        <div class="${type}-state">
+          <strong>${title}</strong>
+          <div>${message}</div>
+        </div>
+      `;
+    }
 
-fetch("lessons.json")
-.then(res=>res.json())
-.then(data=>{
+    async function loadLesson(lesson, card) {
+      if (activeCard) activeCard.classList.remove('active');
+      if (card) {
+        card.classList.add('active');
+        activeCard = card;
+      }
 
-const lessonList =
-document.getElementById("lessons");
+      viewerTitle.textContent = lesson.title || 'Untitled lesson';
+      viewerDescription.textContent = lesson.description || 'Interactive H5P activity';
 
-data.forEach(lesson=>{
+      setViewerState('loading', 'Loading lesson', 'Please wait while the activity is being prepared.');
 
-const card =
-document.createElement("div");
+      const folder = lesson.folder;
+      if (!folder) {
+        setViewerState('error', 'Invalid lesson data', 'This lesson is missing a folder path in lessons.json.');
+        return;
+      }
 
-card.className = "lesson";
+      viewer.innerHTML = '';
 
-card.innerHTML = lesson.title;
+      try {
+        await new H5PStandalone.H5P(viewer, {
+          h5pJsonPath: `./${folder}`,
+          frameJs: 'https://cdn.jsdelivr.net/npm/h5p-standalone@3.8.0/dist/frame.bundle.js',
+          frameCss: 'https://cdn.jsdelivr.net/npm/h5p-standalone@3.8.0/dist/styles/h5p.css'
+        });
+      } catch (error) {
+        console.error(error);
+        setViewerState(
+          'error',
+          'Could not load this lesson',
+          `Check that the folder "${folder}" exists and contains h5p.json, content/, and required H5P libraries.`
+        );
+      }
+    }
 
-card.onclick = ()=>{
+    async function init() {
+      try {
+        const response = await fetch('./lessons.json');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-document.getElementById("viewer")
-.innerHTML = "";
+        const lessons = await response.json();
 
-new H5PStandalone.H5P(
-document.getElementById("viewer"),
-{
-h5pJsonPath: lesson.folder
-}
-);
+        if (!Array.isArray(lessons) || lessons.length === 0) {
+          setViewerState('error', 'No lessons found', 'lessons.json is empty or not formatted as an array.');
+          return;
+        }
 
-};
+        lessons.forEach((lesson, index) => {
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'lesson-card';
 
-lessonList.appendChild(card);
+          const title = document.createElement('h3');
+          title.textContent = lesson.title || `Lesson ${index + 1}`;
 
-});
+          const description = document.createElement('p');
+          description.textContent = lesson.description || 'Click to open this activity.';
 
-});
+          const tag = document.createElement('span');
+          tag.className = 'tag';
+          tag.textContent = lesson.tag || lesson.folder || 'Lesson';
 
-</script>
+          card.appendChild(title);
+          card.appendChild(description);
+          card.appendChild(tag);
 
+          card.addEventListener('click', () => loadLesson(lesson, card));
+          lessonList.appendChild(card);
+        });
+
+        loadLesson(lessons[0], lessonList.firstElementChild);
+      } catch (error) {
+        console.error(error);
+        setViewerState(
+          'error',
+          'Failed to load lessons.json',
+          'Make sure lessons.json is in the same folder as index.html and contains valid JSON.'
+        );
+      }
+    }
+
+    init();
+  </script>
 </body>
 </html>

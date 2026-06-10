@@ -2,41 +2,61 @@
   {
     "title": "Lesson 1",
     "folder": "lesson1"
+	 "description": "Introduction to the topic",
+    "tag": "Intro"
   },
   {
     "title": "Lesson 2",
     "folder": "lesson2"
+	 "description": "Introduction to the topic",
+    "tag": "Intro"
   },
   {
     "title": "Lesson 3",
     "folder": "lesson3"
+	 "description": "Introduction to the topic",
+    "tag": "Intro"
   },
   {
     "title": "Lesson 4",
     "folder": "lesson4"
+	 "description": "Introduction to the topic",
+    "tag": "Intro"
   },
   {
     "title": "Lesson 5",
     "folder": "lesson5"
+	 "description": "Introduction to the topic",
+    "tag": "Intro"
   },
   {
     "title": "Lesson 6",
     "folder": "lesson6"
+	 "description": "Introduction to the topic",
+    "tag": "Intro"
   },
   {
     "title": "Lesson 7",
     "folder": "lesson7"
+	 "description": "Introduction to the topic",
+    "tag": "Intro"
   },
   {
     "title": "Lesson 8",
     "folder": "lesson8"
+	 "description": "Introduction to the topic",
+    "tag": "Intro"
   },
   {
     "title": "Lesson 9",
     "folder": "lesson9"
+	 "description": "Introduction to the topic",
+    "tag": "Intro"
   },
   {
     "title": "Lesson 10",
     "folder": "lesson10"
+	 "description": "Introduction to the topic",
+    "tag": "Intro"
   }
 ]
