@@ -350,38 +350,47 @@
       return card;
     }
 
-    async function init() {
+async function init() {
+  try {
+    const response = await fetch('./lessons.json', { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Failed to load lessons.json: HTTP ${response.status}`);
+    }
+
+    const lessons = await response.json();
+    console.log('LESSON COUNT:', lessons.length);
+    console.log('LESSONS:', lessons);
+
+    if (!Array.isArray(lessons) || lessons.length === 0) {
+      setViewerState('error', 'No lessons found', 'lessons.json is empty or not formatted as a JSON array.');
+      return;
+    }
+
+    lessonList.innerHTML = '';
+
+    lessons.forEach((lesson, index) => {
+      console.log('Adding card for', lesson.title, lesson.folder);
+      const card = createLessonCard(lesson, index);
+      lessonList.appendChild(card);
+    });
+
+    const firstCard = lessonList.firstElementChild;
+    if (firstCard) {
       try {
-        const response = await fetch('./lessons.json');
-        if (!response.ok) {
-          throw new Error(`Failed to load lessons.json: HTTP ${response.status}`);
-        }
-
-        const lessons = await response.json();
-
-        if (!Array.isArray(lessons) || lessons.length === 0) {
-          setViewerState('error', 'No lessons found', 'lessons.json is empty or not formatted as a JSON array.');
-          return;
-        }
-
-        lessons.forEach((lesson, index) => {
-          const card = createLessonCard(lesson, index);
-          lessonList.appendChild(card);
-        });
-
-        const firstCard = lessonList.firstElementChild;
-        if (firstCard) {
-          await loadLesson(lessons[0], firstCard);
-        }
-      } catch (error) {
-        console.error(error);
-        setViewerState(
-          'error',
-          'Failed to initialize library',
-          'Make sure index.html and lessons.json are in the same folder and the JSON is valid.'
-        );
+        await loadLesson(lessons[0], firstCard);
+      } catch (e) {
+        console.error('Initial lesson load failed:', e);
       }
     }
+  } catch (error) {
+    console.error(error);
+    setViewerState(
+      'error',
+      'Failed to initialize library',
+      'Make sure index.html and lessons.json are in the same folder and the JSON is valid.'
+    );
+  }
+}
 
     init();
   </script>
