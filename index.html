@@ -198,13 +198,6 @@
       max-width: 100%;
     }
 
-    code {
-      background: #eef3f8;
-      padding: 2px 6px;
-      border-radius: 6px;
-      font-size: 0.9em;
-    }
-
     @media (max-width: 960px) {
       .layout {
         grid-template-columns: 1fr;
@@ -224,7 +217,7 @@
 <body>
   <header>
     <div class="header-wrap">
-      <h1>Computational_Thinking</h1>
+      <h1>Computational Thinking</h1>
       <p>Select a lesson from the list to load its interactive content.</p>
     </div>
   </header>
@@ -232,6 +225,7 @@
   <main class="layout">
     <aside class="sidebar">
       <h2>Lessons</h2>
+      <p>Choose a chapter from the list. Each lesson loads from its own folder like <code>lesson1</code>, <code>lesson2</code>, and so on.</p>
       <div id="lessonList" class="lesson-list"></div>
     </aside>
 
@@ -256,6 +250,16 @@
     const viewerTitle = document.getElementById('viewerTitle');
     const viewerDescription = document.getElementById('viewerDescription');
     let activeCard = null;
+
+    const H5PPlayer =
+      window.H5PStandalone?.H5P ||
+      window.H5PStandalone ||
+      window.H5P?.H5P ||
+      null;
+
+    console.log('window.H5PStandalone:', window.H5PStandalone);
+    console.log('window.H5P:', window.H5P);
+    console.log('Resolved H5PPlayer:', H5PPlayer);
 
     function escapeHtml(value) {
       return String(value)
@@ -282,7 +286,7 @@
       ];
 
       for (const file of requiredFiles) {
-        const response = await fetch(file, { method: 'GET' });
+        const response = await fetch(file, { method: 'GET', cache: 'no-store' });
         if (!response.ok) {
           throw new Error(`Missing file: ${file}`);
         }
@@ -305,6 +309,15 @@
         return;
       }
 
+      if (!H5PPlayer) {
+        setViewerState(
+          'error',
+          'H5P player not available',
+          'The H5P standalone script did not expose a usable player object. Check the browser console and the main.bundle.js URL.'
+        );
+        return;
+      }
+
       setViewerState('loading', 'Loading lesson', `Preparing ${folder}...`);
 
       try {
@@ -312,17 +325,17 @@
 
         viewer.innerHTML = '';
 
-        await new H5PStandalone.H5P(viewer, {
+        await new H5PPlayer(viewer, {
           h5pJsonPath: `./${folder}`,
           frameJs: 'https://cdn.jsdelivr.net/npm/h5p-standalone@3.8.0/dist/frame.bundle.js',
           frameCss: 'https://cdn.jsdelivr.net/npm/h5p-standalone@3.8.0/dist/styles/h5p.css'
         });
       } catch (error) {
-        console.error(error);
+        console.error('Lesson load error:', error);
         setViewerState(
           'error',
           'Could not load this lesson',
-          `Check ${folder}/h5p.json, ${folder}/content/content.json, and required H5P library folders.`
+          `Check ${folder}/h5p.json, ${folder}/content/content.json, required H5P library folders, and the H5P player script.`
         );
       }
     }
@@ -350,49 +363,49 @@
       return card;
     }
 
-async function init() {
-  try {
-    const response = await fetch('./lessons.json', { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error(`Failed to load lessons.json: HTTP ${response.status}`);
-    }
-
-    const lessons = await response.json();
-    console.log('LESSON COUNT:', lessons.length);
-    console.log('LESSONS:', lessons);
-
-    if (!Array.isArray(lessons) || lessons.length === 0) {
-      setViewerState('error', 'No lessons found', 'lessons.json is empty or not formatted as a JSON array.');
-      return;
-    }
-
-    lessonList.innerHTML = '';
-
-    lessons.forEach((lesson, index) => {
-      console.log('Adding card for', lesson.title, lesson.folder);
-      const card = createLessonCard(lesson, index);
-      lessonList.appendChild(card);
-    });
-
-    const firstCard = lessonList.firstElementChild;
-    if (firstCard) {
+    async function init() {
       try {
-        await loadLesson(lessons[0], firstCard);
-      } catch (e) {
-        console.error('Initial lesson load failed:', e);
+        const response = await fetch('./lessons.json', { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`Failed to load lessons.json: HTTP ${response.status}`);
+        }
+
+        const lessons = await response.json();
+        console.log('LESSON COUNT:', lessons.length);
+        console.log('LESSONS:', lessons);
+
+        if (!Array.isArray(lessons) || lessons.length === 0) {
+          setViewerState('error', 'No lessons found', 'lessons.json is empty or not formatted as a JSON array.');
+          return;
+        }
+
+        lessonList.innerHTML = '';
+
+        lessons.forEach((lesson, index) => {
+          console.log('Adding card for:', lesson.title, lesson.folder);
+          const card = createLessonCard(lesson, index);
+          lessonList.appendChild(card);
+        });
+
+        const firstCard = lessonList.firstElementChild;
+        if (firstCard) {
+          try {
+            await loadLesson(lessons[0], firstCard);
+          } catch (error) {
+            console.error('Initial lesson load failed:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Init error:', error);
+        setViewerState(
+          'error',
+          'Failed to initialize library',
+          'Make sure index.html and lessons.json are in the same folder and the JSON is valid.'
+        );
       }
     }
-  } catch (error) {
-    console.error(error);
-    setViewerState(
-      'error',
-      'Failed to initialize library',
-      'Make sure index.html and lessons.json are in the same folder and the JSON is valid.'
-    );
-  }
-}
 
-    init();
+    window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
